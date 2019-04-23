@@ -133,6 +133,7 @@
                                     <additionalBuildArgs>
                                         <additionalBuildArg>-R:-InstallSegfaultHandler</additionalBuildArg>
                                         <additionalBuildArg>-H:-AllowVMInspection</additionalBuildArg>
+                                        <additionalBuildArg>-Djava.net.preferIPv4Stack=true</additionalBuildArg>
                                     </additionalBuildArgs>
                                 </configuration>
                             </execution>
