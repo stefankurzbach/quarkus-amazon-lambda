@@ -1,0 +1,16 @@
+image:  quay.io/quarkus/centos-quarkus-maven:latest
+
+stages:
+  - build
+
+before_script:
+  - native-image --version
+  - mvn --version
+
+build:
+  stage: build
+  script: mvn clean package -DskipTests=true -Dnative=true
+  artifacts:
+    paths:
+      - "target/*runner"
+
