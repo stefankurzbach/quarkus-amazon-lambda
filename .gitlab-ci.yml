@@ -1,16 +1,45 @@
-image:  quay.io/quarkus/centos-quarkus-maven:latest
-
 stages:
-  - build
-
-before_script:
-  - native-image --version
-  - mvn --version
+  #- build
+  - plan
+  - apply
 
 build:
+  image: quay.io/quarkus/centos-quarkus-maven:latest
   stage: build
-  script: mvn clean package -DskipTests=true -Dnative=true
+  script:
+    - mvn --version
+    - native-image --version
+    - mvn clean package -DskipTests=true -Dnative=true
   artifacts:
     paths:
       - "target/*runner"
 
+plan:
+  image:
+    name: hashicorp/terraform:light
+    entrypoint:
+      - '/usr/bin/env'
+      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+  stage: plan
+  script:
+    - terraform --version
+    #- mkdir -p ./creds
+    #- echo $SERVICEACCOUNT | base64 -d > ./creds/serviceaccount.json
+    - terraform init
+    - terraform plan -out "planfile"
+  artifacts:
+    paths:
+      - planfile
+
+apply:
+  image:
+    name: hashicorp/terraform:light
+    entrypoint:
+      - '/usr/bin/env'
+      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+  stage: apply
+  script:
+    - terraform apply -input=false "planfile"
+  dependencies:
+    - plan
+  when: manual
